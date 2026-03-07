@@ -6,6 +6,13 @@ It combines a modern web UI with a secure local Windows agent so you can inspect
 
 ---
 
+## Documentation Language
+
+- English: this file (`README.md`)
+- Shqip (Albanian): [`README.sq.md`](README.sq.md)
+
+---
+
 ## Quick Start
 
 If you just want to run NetPulse quickly:
