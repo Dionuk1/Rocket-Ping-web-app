@@ -84,8 +84,12 @@ export default function AnimatedButton({
           }}
         />
       ))}
-      <span className="relative z-10 flex items-center justify-center gap-2">
-        {loading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />}
+      {loading && (
+        <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+        </span>
+      )}
+      <span className={`relative z-10 flex items-center justify-center gap-2 ${loading ? "opacity-0" : "opacity-100"}`}>
         {children}
       </span>
     </button>
