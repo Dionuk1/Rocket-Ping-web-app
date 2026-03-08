@@ -60,6 +60,10 @@ function normalizeMac(mac: string): string {
   return mac.replace(/-/g, ":").toUpperCase();
 }
 
+function isLikelyVirtualInterface(name: string): boolean {
+  return /(loopback|vethernet|virtual|vmware|vbox|hyper-v|docker|wsl|tailscale|zerotier|hamachi|npcap)/i.test(name);
+}
+
 export function isIPv4Address(ip: string): boolean {
   const parts = ip.split(".");
   if (parts.length !== 4) return false;
@@ -133,8 +137,9 @@ function getLocalPrivateIpsFromOs(): string[] {
   const interfaces = os.networkInterfaces();
   const ips = new Set<string>();
 
-  for (const entries of Object.values(interfaces)) {
+  for (const [interfaceName, entries] of Object.entries(interfaces)) {
     if (!entries) continue;
+    if (isLikelyVirtualInterface(interfaceName)) continue;
     for (const entry of entries) {
       if (entry.family !== "IPv4") continue;
       if (entry.internal) continue;
@@ -239,8 +244,12 @@ export async function getNetworkInfo(): Promise<NetworkInfo> {
 
   const psScript = `
 $cfg = Get-NetIPConfiguration |
-  Where-Object { $_.NetAdapter.Status -eq 'Up' -and $_.IPv4Address -ne $null } |
-  Sort-Object -Property InterfaceMetric |
+  Where-Object {
+    $_.NetAdapter.Status -eq 'Up' -and
+    $_.IPv4Address -ne $null -and
+    $_.NetAdapter.InterfaceDescription -notmatch 'Hyper-V|VMware|VirtualBox|TAP|Tailscale|ZeroTier|Loopback|Npcap|Docker|WSL'
+  } |
+  Sort-Object @{Expression={ if ($_.IPv4DefaultGateway -ne $null) { 0 } else { 1 } }}, InterfaceMetric |
   Select-Object -First 1;
 if ($null -eq $cfg) {
   [pscustomobject]@{ localIp = ""; gateway = ""; dnsServers = @() } | ConvertTo-Json -Compress

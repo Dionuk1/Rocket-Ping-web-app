@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { agentGet } from "@/lib/agentProxy";
 import { getNetworkInfo } from "@/lib/windowsNetwork";
 
+function isIPv4Address(ip: string): boolean {
+  const parts = ip.split(".");
+  if (parts.length !== 4) return false;
+  return parts.every((part) => /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255);
+}
+
+function isUsableLocalIp(ip: string): boolean {
+  if (!isIPv4Address(ip)) return false;
+  return ip !== "0.0.0.0";
+}
+
 export async function GET() {
   try {
     const info = await agentGet<{ ssid: string; localIp: string; gateway: string; dns: string[] }>("/network/info").catch(async () => {
@@ -13,6 +24,17 @@ export async function GET() {
         dns: fallback.dnsServers,
       };
     });
+
+    if (!isUsableLocalIp(info.localIp)) {
+      const fallback = await getNetworkInfo();
+      return NextResponse.json({
+        ssid: fallback.ssid,
+        localIp: fallback.localIp,
+        gateway: fallback.gateway,
+        dnsServers: fallback.dnsServers,
+      });
+    }
+
     return NextResponse.json({
       ssid: info.ssid,
       localIp: info.localIp,
