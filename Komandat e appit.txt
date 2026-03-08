@@ -1,1 +1,0 @@
-me bo run appin komanda: npm run dev
