@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Home, Settings, Smartphone, Terminal, Zap } from "lucide-react";
+import { Activity, Home, Settings, Share2, Smartphone, Terminal, Zap } from "lucide-react";
 import useI18n from "@/lib/useI18n";
 
 export default function SidebarNav() {
@@ -13,6 +13,7 @@ export default function SidebarNav() {
     { href: "/", label: t.navHome, icon: Home },
     { href: "/devices", label: t.navDevices, icon: Smartphone },
     { href: "/activity", label: t.navActivity, icon: Activity },
+    { href: "/topology", label: t.navTopology, icon: Share2 },
     { href: "/speed", label: t.navSpeed, icon: Zap },
     { href: "/terminal", label: t.navTerminal, icon: Terminal },
     { href: "/settings", label: t.navSettings, icon: Settings },

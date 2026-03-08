@@ -11,6 +11,7 @@ type TranslationMap = {
   navHome: string;
   navDevices: string;
   navActivity: string;
+  navTopology: string;
   navSpeed: string;
   navTerminal: string;
   navSettings: string;
@@ -41,6 +42,7 @@ export const translations: Record<AppLanguage, TranslationMap> = {
     navHome: "Home",
     navDevices: "Devices",
     navActivity: "Activity",
+    navTopology: "Topology",
     navSpeed: "Speed",
     navTerminal: "Terminal",
     navSettings: "Settings",
@@ -69,6 +71,7 @@ export const translations: Record<AppLanguage, TranslationMap> = {
     navHome: "Kreu",
     navDevices: "Pajisjet",
     navActivity: "Aktiviteti",
+    navTopology: "Topologjia",
     navSpeed: "Shpejtësia",
     navTerminal: "Terminali",
     navSettings: "Cilësimet",
