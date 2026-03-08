@@ -1,6 +1,6 @@
-# NetPulse
+# RocketPing
 
-NetPulse është një **dashboard lokal për monitorim rrjeti në Windows** i ndërtuar me **Next.js (App Router)**, **TypeScript** dhe **Tailwind CSS**.
+RocketPing është një **dashboard lokal për monitorim rrjeti në Windows** i ndërtuar me **Next.js (App Router)**, **TypeScript** dhe **Tailwind CSS**.
 
 Ai kombinon një UI moderne në web me një agjent lokal të sigurt në Windows, që të mund të inspektoni LAN-in, të kryeni speed test, të monitoroni aktivitetin dhe të gjeneroni raporte nga një vend i vetëm.
 
@@ -13,9 +13,9 @@ Ai kombinon një UI moderne në web me një agjent lokal të sigurt në Windows,
 
 ---
 
-## Çfarë Bën NetPulse
+## Çfarë Bën RocketPing
 
-NetPulse ju ndihmon të:
+RocketPing ju ndihmon të:
 - shihni detaje live të rrjetit (SSID, IP lokale, gateway, DNS)
 - skanoni pajisjet në LAN
 - ndiqni aktivitetin e rrjetit dhe ndryshimet e gjendjes së pajisjeve
@@ -51,7 +51,7 @@ NetPulse ju ndihmon të:
 ### Local Agent (Windows)
 - HTTP server i lehtë me Node.js + TypeScript
 - Binds vetëm në `127.0.0.1:5055`
-- Endpoints të mbrojtura me token (`X-NETPULSE-TOKEN`)
+- Endpoints të mbrojtura me token (`X-ROCKETPING-TOKEN`)
 - Rate limiting dhe kontroll localhost-only
 
 ---
@@ -88,8 +88,8 @@ cd Net-Pulse-app
 ### Opsionale (të rekomanduara)
 - Ookla Speedtest CLI (`speedtest.exe`)
 
-NetPulse provon automatikisht këto lokacione:
-1. variabla `NETPULSE_SPEEDTEST_BIN`
+RocketPing provon automatikisht këto lokacione:
+1. variabla `ROCKETPING_SPEEDTEST_BIN`
 2. `./ookla-speedtest-1.2.0-win64/speedtest.exe`
 3. çdo `./ookla-speedtest*/speedtest.exe`
 4. `C:\Tools\speedtest\speedtest.exe`
@@ -119,10 +119,10 @@ cd ..
 Krijo `.env.local` në root të projektit:
 
 ```env
-NETPULSE_AGENT_URL=http://127.0.0.1:5055
-NETPULSE_TOKEN=change-me-local-token
+ROCKETPING_AGENT_URL=http://127.0.0.1:5055
+ROCKETPING_TOKEN=change-me-local-token
 # Opsionale:
-# NETPULSE_SPEEDTEST_BIN=C:\Path\To\speedtest.exe
+# ROCKETPING_SPEEDTEST_BIN=C:\Path\To\speedtest.exe
 ```
 
 I njëjti token duhet të përdoret edhe nga local agent.
@@ -138,7 +138,7 @@ cd local-agent
 npm run dev
 ```
 
-### 2) Nis NetPulse web app (terminali 2)
+### 2) Nis RocketPing web app (terminali 2)
 
 ```bash
 npm run dev
