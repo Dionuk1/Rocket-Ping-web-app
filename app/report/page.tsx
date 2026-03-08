@@ -47,7 +47,7 @@ export default function ReportPage() {
 
       {!loading && report && (
         <>
-          <Card className="p-5">
+          <Card className="report-card p-5">
             <h2 className="text-lg font-semibold">Network Overview</h2>
             <div className="mt-2 grid gap-1 text-sm text-white/80">
               <p>SSID: {report.network.ssid}</p>
@@ -57,7 +57,7 @@ export default function ReportPage() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          <Card className="report-card p-5">
             <h2 className="text-lg font-semibold">Trust Score 2.0</h2>
             <p className="mt-1 text-sm text-white/70">
               Latest sample: {trust ? `${trust.score} (${trust.badge}) at ${fmtTime(trust.timestamp)}` : "N/A"}
@@ -70,7 +70,7 @@ export default function ReportPage() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          <Card className="report-card p-5">
             <h2 className="text-lg font-semibold">Device Inventory</h2>
             <div className="mt-3 overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -98,7 +98,7 @@ export default function ReportPage() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          <Card className="report-card p-5">
             <h2 className="text-lg font-semibold">SQLite Speed Test History</h2>
             <div className="mt-3 space-y-2">
               {report.speedHistory.length === 0 && <p className="text-sm text-white/60">No speed history saved yet.</p>}
@@ -111,7 +111,7 @@ export default function ReportPage() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          <Card className="report-card p-5">
             <h2 className="text-lg font-semibold">Recent Activity Events</h2>
             <div className="mt-3 space-y-2">
               {report.activityEvents.length === 0 && <p className="text-sm text-white/60">No activity events recorded.</p>}

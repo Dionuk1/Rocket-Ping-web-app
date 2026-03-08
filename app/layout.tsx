@@ -31,7 +31,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} min-h-screen text-[color:var(--np-text)]`}>
         <ThemeSync />
-        <div className="min-h-screen px-4 py-4 md:px-6 md:py-6">
+        <div className="app-shell min-h-screen px-4 py-4 md:px-6 md:py-6">
           <div className="print-hide mx-auto w-full max-w-[430px] md:max-w-[1100px]">
             <AppControls />
           </div>
@@ -41,11 +41,11 @@ export default function RootLayout({
             <aside className="print-hide">
               <SidebarNav />
             </aside>
-            <main className="min-h-[calc(100vh-3rem)]">{children}</main>
+            <main className="content-shell min-h-[calc(100vh-3rem)]">{children}</main>
           </div>
 
           <div className="print-only mx-auto w-full max-w-[1100px]">
-            <main>{children}</main>
+            <main className="print-content">{children}</main>
           </div>
 
           <BottomNav />
