@@ -212,7 +212,7 @@ Përfitimet:
 
 - Agent bind vetëm në `127.0.0.1` (localhost-only)
 - Header token i detyrueshëm për route të mbrojtura:
-  - `X-NETPULSE-TOKEN`
+  - `X-ROCKETPING-TOKEN`
 - Endpoint i terminalit përdor command allowlist
 - Input validation dhe output sanitization aplikohen në route të agent-it
 - Rate limiting bazik është aktiv në local agent
