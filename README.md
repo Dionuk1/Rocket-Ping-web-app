@@ -341,5 +341,3 @@ The project is open for improvements and new contributions.
 For collaboration, suggestions, or questions contact:
 
 Email: [dukshini123@gmail.com](mailto:dukshini123@gmail.com)
-
-Projekti eshte i hapur per permiresime dhe kontribute te reja.
