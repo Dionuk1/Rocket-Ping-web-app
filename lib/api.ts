@@ -11,6 +11,8 @@ export type ScannedDeviceResponse = {
   online: boolean;
   latencyMs: number | null;
   name?: string;
+  nameSource?: "reverse_dns" | "netbios" | "dhcp_lookup";
+  nameConfidence?: "high" | "medium" | "low";
   vendor?: string;
   osGuess?: string;
   openPortsSummary?: string;

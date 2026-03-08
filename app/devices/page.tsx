@@ -22,6 +22,7 @@ const iconCycle: Array<keyof typeof iconMap> = ["tv", "phone", "tablet", "laptop
 type UiDevice = {
   id: string;
   name: string;
+  nameSubtitle?: string;
   ip: string;
   mac: string;
   vendor?: string;
@@ -47,10 +48,22 @@ function mapScannedToUi(scanned: ScannedDeviceResponse[]): UiDevice[] {
     const isGateway = item.ip.endsWith(".1") || /router|gateway/i.test(item.name ?? "");
     const icon = isGateway ? "wifi" : iconCycle[index % iconCycle.length];
     const name = item.name || (isGateway ? "Router" : `Device ${ipTail(item.ip)}`);
+    const sourceLabel =
+      item.nameSource === "reverse_dns" ? "Reverse DNS" :
+      item.nameSource === "netbios" ? "NetBIOS" :
+      item.nameSource === "dhcp_lookup" ? "DHCP lookup" :
+      "";
+    const confidenceLabel =
+      item.nameConfidence === "high" ? "High" :
+      item.nameConfidence === "medium" ? "Medium" :
+      item.nameConfidence === "low" ? "Low" :
+      "";
+    const nameSubtitle = sourceLabel ? `from ${sourceLabel}${confidenceLabel ? ` • ${confidenceLabel}` : ""}` : undefined;
 
     return {
       id: `${item.ip}-${item.mac}`,
       name,
+      nameSubtitle,
       ip: item.ip,
       mac: item.mac,
       vendor: item.vendor,
@@ -182,6 +195,7 @@ export default function DevicesPage() {
                   </div>
                   <div>
                     <p className="text-[34px] font-semibold text-white sm:text-[26px]">{device.name}</p>
+                    {device.nameSubtitle && <p className="text-xs text-white/45">{device.nameSubtitle}</p>}
                     <p className="flex items-center gap-2 text-[22px] text-white/50 sm:text-[16px]">
                       <span className={`h-3 w-3 rounded-full ${device.online ? "bg-[color:var(--np-accent)]" : "bg-white/40"}`} />
                       {device.statusText}

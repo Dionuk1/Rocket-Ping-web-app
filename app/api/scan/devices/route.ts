@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { agentGet } from "@/lib/agentProxy";
+import { resolveDeviceName } from "@/lib/server/deviceNames";
 import { scanDevicesFallback } from "@/lib/server/scanFallback";
 
 type AgentDevice = {
@@ -7,6 +8,9 @@ type AgentDevice = {
   mac: string;
   online: boolean;
   latencyMs: number | null;
+  name?: string;
+  nameSource?: "reverse_dns" | "netbios" | "dhcp_lookup";
+  nameConfidence?: "high" | "medium" | "low";
   vendor: string;
   osGuess: string;
   openPorts: number[];
@@ -32,7 +36,19 @@ function logAgentFailure(message: string) {
 export async function GET() {
   try {
     const payload = await agentGet<{ timestamp: string; devices: AgentDevice[] }>("/scan/devices");
-    return NextResponse.json(payload.devices, { headers: { "Cache-Control": "no-store, max-age=0" } });
+    const devices = await Promise.all(
+      payload.devices.map(async (device) => {
+        if (device.name?.trim()) return device;
+        const resolved = await resolveDeviceName(device.ip);
+        return {
+          ...device,
+          name: resolved.name,
+          nameSource: resolved.source,
+          nameConfidence: resolved.confidence,
+        };
+      }),
+    );
+    return NextResponse.json(devices, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to scan devices.";
     logAgentFailure(message);
