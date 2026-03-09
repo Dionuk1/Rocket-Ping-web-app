@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Card from "@/components/Card";
 import { fetchLiveBandwidth, type LiveBandwidthResponse } from "@/lib/api";
+import useSettings from "@/lib/useSettings";
 
 type Point = {
   rx: number;
@@ -25,6 +26,30 @@ function pointsToPath(values: number[], width: number, height: number, maxValue:
 }
 
 export default function LiveBandwidthWidget() {
+  const { settings } = useSettings();
+  const isSq = settings.language === "sq";
+  const ui = isSq
+    ? {
+        title: "Monitorimi i Gjerësisë së Bandës në Kohë Reale",
+        detecting: "Po zbulohet adaptori...",
+        download: "Shkarkim",
+        upload: "Ngarkim",
+        collecting: "Po mblidhen mostra në kohë reale...",
+        updatesEvery: "Përditësohet çdo",
+        seconds: "sekonda",
+        unavailable: "Matja e gjerësisë së bandës nuk është e disponueshme tani. Po riprovohet...",
+      }
+    : {
+        title: "Live Bandwidth Monitor",
+        detecting: "Detecting adapter...",
+        download: "Download",
+        upload: "Upload",
+        collecting: "Collecting live samples...",
+        updatesEvery: "Updates every",
+        seconds: "seconds",
+        unavailable: "Live bandwidth probe is unavailable right now. Retrying...",
+      };
+
   const [points, setPoints] = useState<Point[]>([]);
   const [latest, setLatest] = useState<LiveBandwidthResponse | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -42,7 +67,7 @@ export default function LiveBandwidthWidget() {
         setPoints((current) => [...current, { rx: result.rxMbps, tx: result.txMbps }].slice(-MAX_POINTS));
       } catch {
         if (!active) return;
-        setErrorText("Live bandwidth probe is unavailable right now. Retrying...");
+        setErrorText(ui.unavailable);
         setPoints((current) => [...current, { rx: 0, tx: 0 }].slice(-MAX_POINTS));
       } finally {
         if (active) {
@@ -56,7 +81,7 @@ export default function LiveBandwidthWidget() {
       active = false;
       if (timer) clearTimeout(timer);
     };
-  }, []);
+  }, [ui.unavailable]);
 
   const chart = useMemo(() => {
     const width = 680;
@@ -76,17 +101,17 @@ export default function LiveBandwidthWidget() {
   return (
     <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-[color:var(--np-text)]">Live Bandwidth Monitor</h2>
-        <span className="text-xs text-[color:var(--np-muted)]">{latest?.interfaceAlias || "Detecting adapter..."}</span>
+        <h2 className="text-lg font-semibold text-[color:var(--np-text)]">{ui.title}</h2>
+        <span className="text-xs text-[color:var(--np-muted)]">{latest?.interfaceAlias || ui.detecting}</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
-          <p className="text-xs text-emerald-300/80">Download</p>
+          <p className="text-xs text-emerald-300/80">{ui.download}</p>
           <p className="text-2xl font-semibold text-emerald-300">{(latest?.rxMbps ?? 0).toFixed(2)} Mbps</p>
         </div>
         <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2">
-          <p className="text-xs text-cyan-300/80">Upload</p>
+          <p className="text-xs text-cyan-300/80">{ui.upload}</p>
           <p className="text-2xl font-semibold text-cyan-300">{(latest?.txMbps ?? 0).toFixed(2)} Mbps</p>
         </div>
       </div>
@@ -96,13 +121,13 @@ export default function LiveBandwidthWidget() {
           <path d={chart.rxPath} fill="none" stroke="#34d399" strokeWidth="2.2" strokeLinecap="round" />
           <path d={chart.txPath} fill="none" stroke="#22d3ee" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
-        {points.length < 2 && <p className="px-1 pb-1 text-xs text-[color:var(--np-muted)]">Collecting live samples...</p>}
+        {points.length < 2 && <p className="px-1 pb-1 text-xs text-[color:var(--np-muted)]">{ui.collecting}</p>}
       </div>
 
       <div className="mt-2 flex items-center gap-4 text-xs text-[color:var(--np-muted)]">
-        <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />Download</span>
-        <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />Upload</span>
-        <span>Updates every {POLL_MS / 1000}s</span>
+        <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />{ui.download}</span>
+        <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />{ui.upload}</span>
+        <span>{ui.updatesEvery} {POLL_MS / 1000} {ui.seconds}</span>
       </div>
 
       {errorText && <p className="mt-2 text-xs text-[color:var(--np-danger)]">{errorText}</p>}

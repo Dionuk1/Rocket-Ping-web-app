@@ -25,7 +25,7 @@ export function buildActivityEvents(previous: DbDeviceSnapshot[], current: DbDev
         deviceIp: next.ip,
         deviceMac: next.mac,
         deviceLabel: label(next),
-        details: `New device joined network with IP ${next.ip}.`,
+        details: `Pajisje e re u lidh në rrjet me IP ${next.ip}.`,
         severity: "warn",
       });
       continue;
@@ -39,7 +39,7 @@ export function buildActivityEvents(previous: DbDeviceSnapshot[], current: DbDev
         deviceIp: next.ip,
         deviceMac: next.mac,
         deviceLabel: label(next),
-        details: "Responded to ping again.",
+        details: "Po përgjigjet sërish ndaj ping.",
         severity: "info",
       });
     }
@@ -52,7 +52,7 @@ export function buildActivityEvents(previous: DbDeviceSnapshot[], current: DbDev
         deviceIp: next.ip,
         deviceMac: next.mac,
         deviceLabel: label(next),
-        details: "Stopped responding to ping.",
+        details: "Ndaloi së përgjigjuri ndaj ping.",
         severity: "warn",
       });
     }
@@ -71,7 +71,7 @@ export function buildActivityEvents(previous: DbDeviceSnapshot[], current: DbDev
         deviceIp: next.ip,
         deviceMac: next.mac,
         deviceLabel: label(next),
-        details: `Latency rose from ${prev.latencyMs}ms to ${next.latencyMs}ms`,
+        details: `Vonesa u rrit nga ${prev.latencyMs}ms në ${next.latencyMs}ms`,
         severity: "critical",
       });
     }
@@ -86,7 +86,7 @@ export function buildActivityEvents(previous: DbDeviceSnapshot[], current: DbDev
         deviceIp: prev.ip,
         deviceMac: prev.mac,
         deviceLabel: label(prev),
-        details: `No longer visible in ARP table (${prev.ip})`,
+        details: `Nuk është më e dukshme në tabelën ARP (${prev.ip})`,
         severity: "warn",
       });
     }

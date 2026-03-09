@@ -10,7 +10,8 @@ export const languageLabel: Record<AppLanguage, string> = {
 type TranslationMap = {
   navHome: string;
   navDevices: string;
-  navActivity: string;  navSpeed: string;
+  navActivity: string;
+  navSpeed: string;
   navTerminal: string;
   navSettings: string;
   navigation: string;
@@ -39,7 +40,8 @@ export const translations: Record<AppLanguage, TranslationMap> = {
   en: {
     navHome: "Home",
     navDevices: "Devices",
-    navActivity: "Activity",    navSpeed: "Speed",
+    navActivity: "Activity",
+    navSpeed: "Speed",
     navTerminal: "Terminal",
     navSettings: "Settings",
     navigation: "Navigation",
@@ -49,7 +51,7 @@ export const translations: Record<AppLanguage, TranslationMap> = {
     wifiTrustScore: "Wi-Fi Trust Score",
     generateReport: "Generate Report",
     live: "Live",
-    offlineFallback: "Offline fallback",
+    offlineFallback: "Offline mode",
     loadingNetworkDetails: "Loading live network details...",
     lastUpdated: "Last updated",
     settingsTitle: "Settings",
@@ -60,35 +62,35 @@ export const translations: Record<AppLanguage, TranslationMap> = {
     darkMode: "Dark mode",
     lightMode: "Light mode",
     about: "About",
-    scanInterval: "Scan Interval",
+    scanInterval: "Scan interval",
     notifications: "Notifications",
   },
   sq: {
-    navHome: "Kreu",
+    navHome: "Ballina",
     navDevices: "Pajisjet",
-    navActivity: "Aktiviteti",    navSpeed: "ShpejtÃ«sia",
+    navActivity: "Aktiviteti",
+    navSpeed: "Shpejtësia",
     navTerminal: "Terminali",
-    navSettings: "CilÃ«simet",
+    navSettings: "Cilësimet",
     navigation: "Navigimi",
     homeTitle: "RocketPing",
     dashboardTitle: "Paneli i Rrjetit",
     refresh: "Rifresko",
-    wifiTrustScore: "VlerÃ«simi i Besimit Wi-Fi",
+    wifiTrustScore: "Vlerësimi i Besueshmërisë së Wi-Fi",
     generateReport: "Gjenero Raportin",
-    live: "NÃ« kohÃ« reale",
-    offlineFallback: "Modalitet fallback",
-    loadingNetworkDetails: "Po ngarkohet informacioni i rrjetit...",
-    lastUpdated: "PÃ«rditÃ«suar para",
-    settingsTitle: "CilÃ«simet",
+    live: "Në kohë reale",
+    offlineFallback: "Modaliteti jashtë linje",
+    loadingNetworkDetails: "Po ngarkohen të dhënat e rrjetit në kohë reale...",
+    lastUpdated: "Përditësuar para",
+    settingsTitle: "Cilësimet",
     monitoring: "Monitorimi",
     appearance: "Pamja",
     language: "Gjuha",
     theme: "Tema",
-    darkMode: "Tema e errÃ«t",
-    lightMode: "Tema e Ã§elÃ«t",
+    darkMode: "Pamja e errët",
+    lightMode: "Pamja e çelët",
     about: "Rreth aplikacionit",
-    scanInterval: "Intervali i Skanimit",
+    scanInterval: "Intervali i skanimit",
     notifications: "Njoftimet",
   },
 };
-

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: "RocketPing",
     template: "%s | RocketPing",
   },
-  description: "RocketPing network monitoring dashboard",
+  description: "Paneli i monitorimit të rrjetit RocketPing",
   icons: {
     icon: "/branding/rocketping-mark.svg",
     shortcut: "/branding/rocketping-mark.svg",
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="sq" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} min-h-screen text-[color:var(--np-text)]`}>
         <ThemeSync />
         <div className="app-shell min-h-screen px-4 py-4 md:px-6 md:py-6">

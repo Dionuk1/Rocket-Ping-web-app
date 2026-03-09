@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { fetchActivitySnapshot, fetchNetworkInfo, fetchTrustLive, type NetworkInfoResponse, type TrustLiveResponse } from "@/lib/api";
 import useAutoRefresh from "@/lib/useAutoRefresh";
 import useI18n from "@/lib/useI18n";
+import useSettings from "@/lib/useSettings";
 
 type WarningItem = {
   id: string;
@@ -24,6 +25,42 @@ type WarningItem = {
 export default function HomePage() {
   const router = useRouter();
   const t = useI18n();
+  const { settings } = useSettings();
+  const isSq = settings.language === "sq";
+  const ui = isSq
+    ? {
+        unknownNetwork: "Rrjet i panjohur",
+        wifiIp: "IP Wi-Fi",
+        lanIp: "IP LAN",
+        gateway: "Porta hyrëse",
+        excellent: "Shkëlqyeshëm",
+        encryption: "Enkriptimi",
+        stability: "Qëndrueshmëria",
+        dnsConsistency: "Qëndrueshmëria e DNS",
+        routerBehavior: "Sjellja e ruterit",
+        trustFallback: "Vlerësimi i Besueshmërisë 2.0 po përshtatet me sjelljen e rrjetit.",
+        suspiciousWarnings: "Paralajmërime për pajisje të dyshimta",
+        active: "aktive",
+        noAlerts: "Nuk ka alarme",
+        noSuspicious: "Nuk u zbulua aktivitet i dyshimtë i pajisjeve në skanimet e fundit.",
+      }
+    : {
+        unknownNetwork: "Unknown Network",
+        wifiIp: "Wi-Fi IP",
+        lanIp: "LAN IP",
+        gateway: "Gateway",
+        excellent: "Excellent",
+        encryption: "Encryption",
+        stability: "Stability",
+        dnsConsistency: "DNS Consistency",
+        routerBehavior: "Router Behavior",
+        trustFallback: "Live Trust Score 2.0 is adapting to network behavior.",
+        suspiciousWarnings: "Suspicious Device Warnings",
+        active: "active",
+        noAlerts: "No alerts",
+        noSuspicious: "No suspicious device activity detected in recent scans.",
+      };
+
   const [networkInfo, setNetworkInfo] = useState<NetworkInfoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingReport, setGeneratingReport] = useState(false);
@@ -49,8 +86,7 @@ export default function HomePage() {
         const data = await fetchNetworkInfo();
         setNetworkInfo(data);
         setLoadError(null);
-        const updatedAt = Date.now();
-        setLastUpdatedAt(updatedAt);
+        setLastUpdatedAt(Date.now());
       } catch (error) {
         const message = error instanceof Error ? error.message : t.offlineFallback;
         setLoadError(message);
@@ -130,14 +166,14 @@ export default function HomePage() {
 
   const displayNetwork = useMemo(
     () => ({
-      ssid: networkInfo?.ssid || "Unknown Network",
+      ssid: networkInfo?.ssid || ui.unknownNetwork,
       ip: networkInfo?.localIp || "0.0.0.0",
       wifiIp: networkInfo?.wifiIp || "",
       lanIp: networkInfo?.lanIp || "",
       gateway: networkInfo?.gateway || "N/A",
       dnsServers: networkInfo?.dnsServers ?? [],
     }),
-    [networkInfo],
+    [networkInfo, ui.unknownNetwork],
   );
 
   const statusText = useMemo(() => {
@@ -184,9 +220,9 @@ export default function HomePage() {
         <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-5">
           <p className="text-base font-semibold text-[color:var(--np-text)]">{displayNetwork.ssid}</p>
           <p className="text-sm text-[color:var(--np-muted)]">IP: {displayNetwork.ip}</p>
-          {displayNetwork.wifiIp && <p className="text-sm text-[color:var(--np-muted)]">Wi-Fi IP: {displayNetwork.wifiIp}</p>}
-          {displayNetwork.lanIp && <p className="text-sm text-[color:var(--np-muted)]">LAN IP: {displayNetwork.lanIp}</p>}
-          <p className="text-sm text-[color:var(--np-muted)]">Gateway: {displayNetwork.gateway}</p>
+          {displayNetwork.wifiIp && <p className="text-sm text-[color:var(--np-muted)]">{ui.wifiIp}: {displayNetwork.wifiIp}</p>}
+          {displayNetwork.lanIp && <p className="text-sm text-[color:var(--np-muted)]">{ui.lanIp}: {displayNetwork.lanIp}</p>}
+          <p className="text-sm text-[color:var(--np-muted)]">{ui.gateway}: {displayNetwork.gateway}</p>
           {displayNetwork.dnsServers.length > 0 && (
             <p className="text-sm text-[color:var(--np-muted)]">DNS: {displayNetwork.dnsServers.join(", ")}</p>
           )}
@@ -198,7 +234,7 @@ export default function HomePage() {
         <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-[color:var(--np-text)]">{t.wifiTrustScore}</h2>
-            <span className="font-medium text-emerald-400">{trust?.badge || "Excellent"}</span>
+            <span className="font-medium text-emerald-400">{trust?.badge || ui.excellent}</span>
           </div>
 
           <div className="my-4">
@@ -207,10 +243,10 @@ export default function HomePage() {
 
           <div className="space-y-3">
             {[
-              { label: "Encryption", value: trust?.encryption ?? 95 },
-              { label: "Stability", value: trust?.stability ?? 92 },
-              { label: "DNS Consistency", value: trust?.dnsConsistency ?? 88 },
-              { label: "Router Behavior", value: trust?.routerBehavior ?? 85 },
+              { label: ui.encryption, value: trust?.encryption ?? 95 },
+              { label: ui.stability, value: trust?.stability ?? 92 },
+              { label: ui.dnsConsistency, value: trust?.dnsConsistency ?? 88 },
+              { label: ui.routerBehavior, value: trust?.routerBehavior ?? 85 },
             ].map((m) => (
               <div key={m.label}>
                 <div className="flex justify-between text-sm text-[color:var(--np-muted)]">
@@ -221,20 +257,20 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-[color:var(--np-muted)]">{trust?.recommendation || "Live Trust Score 2.0 is adapting to network behavior."}</p>
+          <p className="mt-3 text-xs text-[color:var(--np-muted)]">{trust?.recommendation || ui.trustFallback}</p>
         </Card>
       </div>
 
       <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[color:var(--np-text)]">Suspicious Device Warnings</h2>
+          <h2 className="text-lg font-semibold text-[color:var(--np-text)]">{ui.suspiciousWarnings}</h2>
           <span className={`text-xs font-medium ${warnings.length > 0 ? "text-[color:var(--np-danger)]" : "text-[color:var(--np-muted)]"}`}>
-            {warnings.length > 0 ? `${warnings.length} active` : "No alerts"}
+            {warnings.length > 0 ? `${warnings.length} ${ui.active}` : ui.noAlerts}
           </span>
         </div>
 
         {warnings.length === 0 && (
-          <p className="text-sm text-[color:var(--np-muted)]">No suspicious device activity detected in recent scans.</p>
+          <p className="text-sm text-[color:var(--np-muted)]">{ui.noSuspicious}</p>
         )}
 
         {warnings.length > 0 && (

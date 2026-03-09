@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AnimatedButton from "@/components/AnimatedButton";
@@ -28,17 +28,61 @@ function toDeviceLabel(device: ActivityDevice): string {
   return device.name || device.ip;
 }
 
-function formatEventType(type: ActivityEventType): string {
-  if (type === "device_added") return "Device Added";
-  if (type === "device_removed") return "Device Removed";
-  if (type === "came_online") return "Came Online";
-  if (type === "went_offline") return "Went Offline";
-  if (type === "security_alert") return "Security Alert";
-  return "Latency Spike";
-}
-
 export default function ActivityPage() {
   const { settings } = useSettings();
+  const isSq = settings.language === "sq";
+  const ui = isSq
+    ? {
+        title: "Aktiviteti i Rrjetit",
+        online: "Në linjë",
+        offline: "Jashtë linje",
+        total: "Gjithsej",
+        eventFilter: "Filtri i ngjarjeve",
+        allEvents: "Të gjitha ngjarjet",
+        eventType: {
+          device_added: "Pajisje e shtuar",
+          device_removed: "Pajisje e hequr",
+          came_online: "U lidh",
+          went_offline: "Doli jashtë linje",
+          latency_spike: "Rritje e vonesës",
+          security_alert: "Alarm sigurie",
+        },
+        onlyOnline: "Shfaq vetëm pajisjet në linjë",
+        feedTitle: "Rrjedha e Ngjarjeve",
+        loading: "Po ngarkohet pamja e aktivitetit...",
+        noEvents: "Nuk ka ende ngjarje. Mbajeni këtë faqe të hapur për historik në kohë reale.",
+        scannedDevices: "Pajisjet e Skanuara",
+        noMatching: "Asnjë pajisje nuk përputhet me filtrat aktualë.",
+        onlineStatus: "Në linjë",
+        offlineStatus: "Jashtë linje",
+        loadError: "Ngarkimi i pamjes së aktivitetit dështoi.",
+      }
+    : {
+        title: "Network Activity",
+        online: "Online",
+        offline: "Offline",
+        total: "Total",
+        eventFilter: "Event Filter",
+        allEvents: "All events",
+        eventType: {
+          device_added: "Device added",
+          device_removed: "Device removed",
+          came_online: "Came online",
+          went_offline: "Went offline",
+          latency_spike: "Latency spike",
+          security_alert: "Security alert",
+        },
+        onlyOnline: "Show only online devices",
+        feedTitle: "Event Feed",
+        loading: "Loading activity snapshot...",
+        noEvents: "No events yet. Keep this page open to build live history.",
+        scannedDevices: "Scanned Devices",
+        noMatching: "No devices match current filters.",
+        onlineStatus: "Online",
+        offlineStatus: "Offline",
+        loadError: "Failed to load activity snapshot.",
+      };
+
   const [devices, setDevices] = useState<ActivityDevice[]>([]);
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,14 +117,14 @@ export default function ActivityPage() {
       })));
       setLoadError(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to load activity snapshot.";
+      const message = error instanceof Error ? error.message : ui.loadError;
       setLoadError(message);
     } finally {
       setLoading(false);
       setRefreshing(false);
       inFlightRef.current = false;
     }
-  }, []);
+  }, [ui.loadError]);
 
   useAutoRefresh(() => refreshSnapshot(false), getPollingIntervalMs(settings));
 
@@ -128,7 +172,7 @@ export default function ActivityPage() {
   return (
     <main className="space-y-4 pb-4 md:space-y-6 md:pb-8">
       <header className="flex items-center justify-between pt-2">
-        <h1 className="text-[44px] font-bold text-white sm:text-[36px]">Network Activity</h1>
+        <h1 className="text-[44px] font-bold text-white sm:text-[36px]">{ui.title}</h1>
         <AnimatedButton
           className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5"
           onClick={() => void refreshSnapshot(false)}
@@ -141,29 +185,29 @@ export default function ActivityPage() {
       </header>
 
       <section className="grid grid-cols-3 gap-3 md:max-w-2xl">
-        <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4"><p className="text-[24px] text-white/50 sm:text-[18px]">Online</p><p className="text-[48px] font-bold text-[color:var(--np-accent)] sm:text-[38px]">{onlineCount}</p></Card>
-        <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4"><p className="text-[24px] text-white/50 sm:text-[18px]">Offline</p><p className="text-[48px] font-bold text-[color:var(--np-warn)] sm:text-[38px]">{offlineCount}</p></Card>
-        <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4"><p className="text-[24px] text-white/50 sm:text-[18px]">Total</p><p className="text-[48px] font-bold text-white sm:text-[38px]">{totalCount}</p></Card>
+        <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4"><p className="text-[24px] text-white/50 sm:text-[18px]">{ui.online}</p><p className="text-[48px] font-bold text-[color:var(--np-accent)] sm:text-[38px]">{onlineCount}</p></Card>
+        <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4"><p className="text-[24px] text-white/50 sm:text-[18px]">{ui.offline}</p><p className="text-[48px] font-bold text-[color:var(--np-warn)] sm:text-[38px]">{offlineCount}</p></Card>
+        <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4"><p className="text-[24px] text-white/50 sm:text-[18px]">{ui.total}</p><p className="text-[48px] font-bold text-white sm:text-[38px]">{totalCount}</p></Card>
       </section>
 
       <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-white/65">
             <Filter size={16} />
-            <span className="text-xs uppercase tracking-wide">Event Filter</span>
+            <span className="text-xs uppercase tracking-wide">{ui.eventFilter}</span>
           </div>
           <select
             className="rounded-xl border border-[color:var(--np-border)] bg-[color:var(--np-surface)] px-3 py-2 text-sm text-white"
             value={eventFilter}
             onChange={(event) => setEventFilter(event.target.value as "all" | ActivityEventType)}
           >
-            <option value="all">All events</option>
-            <option value="device_added">Device added</option>
-            <option value="device_removed">Device removed</option>
-            <option value="came_online">Came online</option>
-            <option value="went_offline">Went offline</option>
-            <option value="latency_spike">Latency spike</option>
-            <option value="security_alert">Security alert</option>
+            <option value="all">{ui.allEvents}</option>
+            <option value="device_added">{ui.eventType.device_added}</option>
+            <option value="device_removed">{ui.eventType.device_removed}</option>
+            <option value="came_online">{ui.eventType.came_online}</option>
+            <option value="went_offline">{ui.eventType.went_offline}</option>
+            <option value="latency_spike">{ui.eventType.latency_spike}</option>
+            <option value="security_alert">{ui.eventType.security_alert}</option>
           </select>
           <label className="flex items-center gap-2 text-sm text-white/80">
             <input
@@ -172,28 +216,28 @@ export default function ActivityPage() {
               onChange={(event) => setShowOnlyOnline(event.target.checked)}
               className="h-4 w-4 rounded border-[color:var(--np-border)] bg-[color:var(--np-surface)]"
             />
-            Show only online devices
+            {ui.onlyOnline}
           </label>
         </div>
       </Card>
 
       <div className="flex items-center gap-2">
         <Activity size={22} className="text-[color:var(--np-primary)]" />
-        <h2 className="text-[40px] font-semibold text-white sm:text-[32px]">Event Feed</h2>
+        <h2 className="text-[40px] font-semibold text-white sm:text-[32px]">{ui.feedTitle}</h2>
       </div>
 
       <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4">
-        {loading && <p className="text-sm text-white/60">Loading activity snapshot...</p>}
+        {loading && <p className="text-sm text-white/60">{ui.loading}</p>}
         {!loading && loadError && <p className="text-sm text-[color:var(--np-danger)]">{loadError}</p>}
         {!loading && !loadError && filteredEvents.length === 0 && (
-          <p className="text-sm text-white/60">No events yet. Keep this page open to build live history.</p>
+          <p className="text-sm text-white/60">{ui.noEvents}</p>
         )}
         {!loading && !loadError && filteredEvents.length > 0 && (
           <div className="space-y-3">
             {filteredEvents.map((event) => (
               <div key={event.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold text-white">{formatEventType(event.type)} - {event.deviceLabel}</p>
+                  <p className="text-sm font-semibold text-white">{ui.eventType[event.type]} - {event.deviceLabel}</p>
                   <p className={`text-xs ${event.severity === "critical" ? "text-[color:var(--np-danger)]" : event.severity === "warn" ? "text-[color:var(--np-warn)]" : "text-white/50"}`}>
                     {new Date(event.timestamp).toLocaleTimeString()}
                   </p>
@@ -205,9 +249,9 @@ export default function ActivityPage() {
         )}
       </Card>
 
-      <h2 className="text-[34px] font-semibold text-white sm:text-[28px]">Scanned Devices</h2>
+      <h2 className="text-[34px] font-semibold text-white sm:text-[28px]">{ui.scannedDevices}</h2>
       <Card className="border-[color:var(--np-border)] bg-[color:var(--np-card)] p-4">
-        {!loading && visibleDevices.length === 0 && <p className="text-sm text-white/60">No devices match current filters.</p>}
+        {!loading && visibleDevices.length === 0 && <p className="text-sm text-white/60">{ui.noMatching}</p>}
         {visibleDevices.length > 0 && (
           <div className="space-y-2">
             {visibleDevices.map((device) => (
@@ -217,7 +261,7 @@ export default function ActivityPage() {
                   <p className="text-xs text-white/50">{device.ip} - {device.mac}</p>
                 </div>
                 <p className={`text-xs font-medium ${device.online ? "text-[color:var(--np-accent)]" : "text-white/45"}`}>
-                  {device.online ? `Online${device.latencyMs != null ? ` - ${device.latencyMs}ms` : ""}` : "Offline"}
+                  {device.online ? `${ui.onlineStatus}${device.latencyMs != null ? ` - ${device.latencyMs}ms` : ""}` : ui.offlineStatus}
                 </p>
               </div>
             ))}

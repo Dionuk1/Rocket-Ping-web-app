@@ -48,7 +48,7 @@ function suspiciousPortEvent(device: AgentDevice, timestamp: string): DbActivity
     deviceIp: device.ip,
     deviceMac: device.mac,
     deviceLabel: device.name || device.ip,
-    details: `Suspicious open port detected: ${suspicious}`,
+    details: `U zbulua portë e hapur e dyshimtë: ${suspicious}`,
     severity: "critical",
     timestamp,
   };
@@ -65,7 +65,7 @@ function unknownVendorEvent(device: AgentDevice, timestamp: string): DbActivityE
     deviceIp: device.ip,
     deviceMac: device.mac,
     deviceLabel: device.name || device.ip,
-    details: "Unknown vendor device detected on local network.",
+    details: "U zbulua pajisje me prodhues të panjohur në rrjetin lokal.",
     severity: "warn",
     timestamp,
   };
