@@ -2,6 +2,25 @@ import type { ActivitySnapshotResponse } from "@/lib/api";
 
 type ActivityEvent = NonNullable<ActivitySnapshotResponse["events"]>[number];
 
+const legacyAlbanianCharacterMap = new Map<string, string>([
+  ["Ã«", "ë"],
+  ["Ã‡", "Ç"],
+  ["Ã§", "ç"],
+  ["Ã‹", "Ë"],
+  ["Ã–", "Ö"],
+  ["Ã¶", "ö"],
+]);
+
+function normalizeLegacyAlbanianText(text: string): string {
+  let normalized = text;
+
+  for (const [broken, fixed] of legacyAlbanianCharacterMap) {
+    normalized = normalized.replaceAll(broken, fixed);
+  }
+
+  return normalized;
+}
+
 export function getActivityEventLabel(type: ActivityEvent["type"], isSq: boolean): string {
   if (type === "device_added") return isSq ? "Pajisje e shtuar" : "Device added";
   if (type === "device_removed") return isSq ? "Pajisje e hequr" : "Device removed";
@@ -12,14 +31,7 @@ export function getActivityEventLabel(type: ActivityEvent["type"], isSq: boolean
 }
 
 export function translateActivityDetails(details: string, isSq: boolean): string {
-  const text = details
-    .replaceAll("Ã«", "ë")
-    .replaceAll("Ã", "Ë")
-    .replaceAll("pÃ«", "pë")
-    .replaceAll("sÃ«", "së")
-    .replaceAll("nÃ«", "në")
-    .replaceAll("mÃ«", "më")
-    .replaceAll("tÃ«", "të");
+  const text = normalizeLegacyAlbanianText(details);
 
   const newDeviceMatch = text.match(/^Pajisje e re u lidh në rrjet me IP ([\d.]+)\.$/);
   if (newDeviceMatch) {
