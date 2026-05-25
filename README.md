@@ -4,6 +4,8 @@ RocketPing is a **Windows-first local network monitoring dashboard** built with 
 
 It combines a modern web UI with a secure local Windows agent so you can inspect your LAN, run speed tests, monitor activity, and generate reports from one place.
 
+![image alt](https://github.com/Dionuk1/Rocket-Ping-web-app/blob/af8b67cda3a00d666a375c78d9f9a79405175a58/image.png)
+
 ---
 
 ## Documentation Language
