@@ -19,6 +19,14 @@ export type ScannedDeviceResponse = {
   osGuess?: string;
   openPortsSummary?: string;
   openPorts?: number[];
+
+  // IP camera detection
+  deviceType?: "camera";
+  cameraConfidence?: "confirmed" | "likely" | "possible";
+  cameraManufacturer?: string;
+  cameraModel?: string;
+  cameraEvidence?: string[];
+
   riskLevel?: "low" | "medium" | "high";
   riskReason?: string;
 };

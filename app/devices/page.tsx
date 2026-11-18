@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Laptop, RefreshCcw, Smartphone, Tablet, Tv, Wifi, X } from "lucide-react";
+import { Camera, Laptop, RefreshCcw, Smartphone, Tablet, Tv, Wifi, X } from "lucide-react";
 import AnimatedButton from "@/components/AnimatedButton";
 import Card from "@/components/Card";
 import { fetchPortScan, fetchScannedDevices, type PortScanResponse, type ScannedDeviceResponse } from "@/lib/api";
@@ -15,6 +15,7 @@ const iconMap = {
   tablet: Tablet,
   wifi: Wifi,
   laptop: Laptop,
+  camera: Camera,
 } as const;
 
 const iconCycle: Array<keyof typeof iconMap> = ["tv", "phone", "tablet", "laptop"];
@@ -45,9 +46,22 @@ function mapScannedToUi(scanned: ScannedDeviceResponse[], isSq: boolean): UiDevi
   }
 
   return scanned.map((item, index) => {
-    const isGateway = item.ip.endsWith(".1") || /router|gateway|ruter|porta hyr[ëe]se/i.test(item.name ?? "");
-    const icon = isGateway ? "wifi" : iconCycle[index % iconCycle.length];
-    const name = item.name || (isGateway ? (isSq ? "Ruteri" : "Router") : `${isSq ? "Pajisja" : "Device"} ${ipTail(item.ip)}`);
+const isGateway = item.ip.endsWith(".1") || /router|gateway|ruter|porta hyr[ëe]se/i.test(item.name ?? "");
+const isCamera = item.deviceType === "camera";
+
+const icon: keyof typeof iconMap = isCamera
+  ? "camera"
+  : isGateway
+    ? "wifi"
+    : iconCycle[index % iconCycle.length];
+
+const name = isCamera
+  ? item.cameraManufacturer
+    ? `${item.cameraManufacturer} IP Camera`
+    : (isSq ? "Kamerë IP" : "IP Camera")
+  : item.name || (isGateway
+    ? (isSq ? "Ruteri" : "Router")
+    : `${isSq ? "Pajisja" : "Device"} ${ipTail(item.ip)}`);
     const sourceLabel =
       item.nameSource === "reverse_dns" ? (isSq ? "DNS i kundërt" : "Reverse DNS") :
       item.nameSource === "netbios" ? "NetBIOS" :
@@ -58,9 +72,27 @@ function mapScannedToUi(scanned: ScannedDeviceResponse[], isSq: boolean): UiDevi
       item.nameConfidence === "medium" ? (isSq ? "Mesatar" : "Medium") :
       item.nameConfidence === "low" ? (isSq ? "I ulët" : "Low") :
       "";
-    const nameSubtitle = sourceLabel
-      ? `${isSq ? "nga" : "from"} ${sourceLabel}${confidenceLabel ? ` • ${confidenceLabel}` : ""}`
-      : undefined;
+          const cameraConfidenceLabel =
+      item.cameraConfidence === "confirmed"
+        ? isSq
+          ? "E konfirmuar"
+          : "Confirmed"
+        : item.cameraConfidence === "likely"
+          ? isSq
+            ? "Ka gjasa"
+            : "Likely"
+          : item.cameraConfidence === "possible"
+            ? isSq
+              ? "E mundshme"
+              : "Possible"
+            : "";
+        const nameSubtitle = isCamera
+      ? [item.cameraModel, cameraConfidenceLabel]
+          .filter(Boolean)
+          .join(" • ") || (isSq ? "Kamerë rrjeti" : "Network camera")
+      : sourceLabel
+        ? `${isSq ? "nga" : "from"} ${sourceLabel}${confidenceLabel ? ` • ${confidenceLabel}` : ""}`
+        : undefined;
 
     return {
       id: `${item.ip}-${item.mac}`,

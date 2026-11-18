@@ -3,6 +3,7 @@ import os from "node:os";
 import { PING_TIMEOUT_MS, SCAN_PING_CONCURRENCY } from "./config.js";
 import { isIPv4Address, isLocalIPv4, mapWithLimit, runCommand } from "./utils.js";
 import { lookupVendorByMac } from "./oui.js";
+import { discoverOnvifCameras, type OnvifCameraInfo } from "./cameraDetection.js";
 
 export type NetworkInfo = {
   ssid: string;
@@ -19,6 +20,7 @@ export type PortScanItem = {
   open: boolean;
 };
 
+
 export type DeviceScanItem = {
   ip: string;
   mac: string;
@@ -28,7 +30,36 @@ export type DeviceScanItem = {
   osGuess: string;
   openPorts: number[];
   openPortsSummary: string;
+
+  deviceType?: "camera";
+  cameraConfidence?: "confirmed" | "likely" | "possible";
+  cameraManufacturer?: string;
+  cameraModel?: string;
+  cameraEvidence?: string[];
 };
+
+
+function cameraBrandFromVendor(vendor: string): string | undefined {
+  const value = vendor.toLowerCase();
+
+  const brands = [
+    "Hikvision",
+    "Dahua",
+    "Reolink",
+    "Axis",
+    "Uniview",
+    "Hanwha",
+    "Bosch",
+    "Vivotek",
+    "Amcrest",
+    "TP-Link",
+  ];
+
+  return brands.find((brand) =>
+    value.includes(brand.toLowerCase()),
+  );
+}
+
 
 const COMMON_PORTS: Array<{ port: number; service: string }> = [
   { port: 22, service: "ssh" },
@@ -39,7 +70,16 @@ const COMMON_PORTS: Array<{ port: number; service: string }> = [
   { port: 443, service: "https" },
   { port: 445, service: "microsoft-ds" },
   { port: 3389, service: "rdp" },
+
+  // IP camera and video services
+  { port: 554, service: "rtsp" },
+  { port: 8000, service: "camera-service" },
+  { port: 8080, service: "http-alt" },
+  { port: 8554, service: "rtsp-alt" },
+  { port: 8899, service: "camera-service" },
+  { port: 37777, service: "dahua-service" },
 ];
+
 
 const DISCOVERY_SWEEP_INTERVAL_MS = 5 * 60_000;
 const DISCOVERY_PING_CONCURRENCY = 12;
@@ -416,6 +456,9 @@ export async function scanDevices(): Promise<DeviceScanItem[]> {
   } catch {
     // keep ARP-only results on discovery failure
   }
+const onvifCameras = await discoverOnvifCameras().catch(
+  () => new Map<string, OnvifCameraInfo>(),
+);
 
   const results = await mapWithLimit(entries, SCAN_PING_CONCURRENCY, async (entry) => {
     const ping = await pingHost(entry.ip).catch(() => ({ online: false, latencyMs: null, ttl: null }));
@@ -428,6 +471,55 @@ export async function scanDevices(): Promise<DeviceScanItem[]> {
       summary = ports.summary;
     }
 
+
+    const onvifCamera = onvifCameras.get(entry.ip);
+
+    const cameraVendor = cameraBrandFromVendor(
+      lookupVendorByMac(entry.mac),
+    );
+
+    const rtspOpen =
+      openPorts.includes(554) ||
+      openPorts.includes(8554);
+
+    const cameraServiceOpen =
+      openPorts.includes(8000) ||
+      openPorts.includes(8899) ||
+      openPorts.includes(37777);
+
+    const cameraSignal = rtspOpen || cameraServiceOpen;
+    const cameraDetected = Boolean(onvifCamera || cameraSignal);
+
+    const cameraConfidence:
+      | "confirmed"
+      | "likely"
+      | "possible"
+      | undefined = onvifCamera
+      ? "confirmed"
+      : cameraSignal && cameraVendor
+        ? "likely"
+        : cameraSignal
+          ? "possible"
+          : undefined;
+
+    const cameraEvidence: string[] = [];
+
+    if (onvifCamera) {
+      cameraEvidence.push("ONVIF WS-Discovery");
+    }
+
+    if (rtspOpen) {
+      cameraEvidence.push("RTSP port detected");
+    }
+
+    if (cameraServiceOpen) {
+      cameraEvidence.push("Camera service port detected");
+    }
+
+    if (cameraVendor && cameraSignal) {
+      cameraEvidence.push(`MAC vendor: ${cameraVendor}`);
+    }
+    
     return {
       ip: entry.ip,
       mac: entry.mac,
@@ -437,9 +529,22 @@ export async function scanDevices(): Promise<DeviceScanItem[]> {
       osGuess,
       openPorts,
       openPortsSummary: summary,
+
+      ...(cameraDetected
+        ? {
+            deviceType: "camera" as const,
+            cameraConfidence,
+            cameraManufacturer:
+              onvifCamera?.manufacturer || cameraVendor,
+            cameraModel: onvifCamera?.model,
+            cameraEvidence,
+          }
+        : {}),
+
     };
   });
 
+  
   results.sort((a, b) => a.ip.localeCompare(b.ip, undefined, { numeric: true }));
   return results;
 }

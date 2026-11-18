@@ -15,6 +15,13 @@ type AgentDevice = {
   osGuess: string;
   openPorts: number[];
   openPortsSummary: string;
+
+  // IP camera detection
+  deviceType?: "camera";
+  cameraConfidence?: "confirmed" | "likely" | "possible";
+  cameraManufacturer?: string;
+  cameraModel?: string;
+  cameraEvidence?: string[];
 };
 
 let lastAgentUnreachableLogMs = 0;
